@@ -5,26 +5,13 @@ on:
       
 jobs:
   test:
-   if: github.event_name != 'push' && github.event_name != 'pull_request' && github.event_name != 'issue_comment' || contains(github.event.comment.body, '/validate') && (github.event_name != 'schedule')
-   runs-on: ubuntu-latest
-   name: Extract Payload
-   
-   steps:
-     - name: Checkout
-       uses: actions/checkout@v2
-       
-     - name: Parse Issue Body
-       uses: ./
-       id: issue_body_parser
-       with:
-         github_token: ${{ secrets.TOKEN_GITHUB }}
-         issue_id: 1
-         payload: yaml
-     
-     - name: Use Parsed Values
-       env:
-         DATA: ${{ steps.issue_body_parser.outputs.payload }}
-         CONTENT_ID_VALUE: ${{ fromJSON(steps.issue_body_parser.outputs.payload).id }}
-       run: >
-         echo "$DATA\n"
-         echo "ID: $CONTENT_ID_VALUE\n"
+    if: github.event_name != 'push' && github.event_name != 'pull_request' && github.event_name != 'issue_comment' || contains(github.event.comment.body, '/validate') && (github.event_name != 'schedule')
+    name: Parse Issue Body
+    uses: peter-murray/issue-body-parser-action@v1
+    id: issue_body_parser
+    with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+    # This is assuming that you are triggering off the issue, otherwise you will need to know the issue number
+        issue_id: ${{ github.event.issue.number }}
+        payload: yaml
+ 
